@@ -1,0 +1,16 @@
+.foot{
+  background:#2D3339;
+  display: flex;
+  justify-content: center;
+  align-items:center;
+  flex-direction: column;
+}
+.copyright{
+margin:30px;
+height: 80px;
+line-height: 42px;
+color: #999;
+font-size: 24px;
+text-align: center;
+
+}
