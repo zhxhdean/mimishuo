@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import {observer, inject} from 'mobx-react'
+import SetCompany from "../SetCompany/SetCompany";
 
 
 @inject('searchStore')
 @observer
-export default class index extends Component {
+class index extends Component {
   render() {
     return (
         <div>
@@ -15,3 +16,4 @@ export default class index extends Component {
     )
   }
 }
+export default index
