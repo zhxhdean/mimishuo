@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import './SetCompany.less'
 import { observer, inject } from 'mobx-react'
 import Head from '../../components/head'
+import util from '../../util/util'
 
 @inject('titleStore')
 @observer
@@ -23,6 +24,7 @@ class SetCompany extends Component {
   setCompany = e => {
     const companyName = this.state.companyName
     if (!companyName) {
+      util.showToast('请输入公司名称',1500)
       console.log('请输入公司名称')
       return
     }
