@@ -1,8 +1,10 @@
 import axios from 'axios'
-import util from '../common/util'
+import util from '../util/util'
 import { WX_OPENID, WX_TOKEN } from './urls'
 const config = {
-  baseURL: 'http://m.haiyaozhu.com/openapi/', //'http://localhost:3000' 'https://api.mimishuo.com',
+  baseURL: 'https://www.mimishuo.net/api/',
+  // baseURL: 'http://m.haiyaozhu.com/openapi/',
+
   // withCredentials: true,
   timeout: 5000
 }
