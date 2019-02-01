@@ -48,8 +48,8 @@ class LookComplaints extends Component {
       const packageId = util.getQuery('packageId')
       console.log()
       if (!wxCode){
-        const url = window.location.href
-        window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd6f12e5d04ed854b&redirect_uri='+url+'&response_type=code&scope=SCOPE&state=STATE#wechat_redirect\n'
+        const url = encodeURIComponent(window.location.href)
+        window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd6f12e5d04ed854b&redirect_uri='+url+'&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect'
       }
 
       this.props.titleStore.setPageTitleText('看吐槽')

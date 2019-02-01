@@ -27,35 +27,35 @@ module.exports = function override(config, env) {
     }
   })(config, env)
 
-  if(process.env.NODE_ENV === 'production'){
-    // https://jeremygayed.com/dynamic-vendor-bundling-in-webpack-528993e48aab
-    config.plugins.push(
-      // Extract all 3rd party modules into a separate 'vendor' chunk
-      new webpack.optimize.SplitChunNksPlugin({
-        cacheGroups: {
-          reactBase: {
-            name: 'reactBase',
-            test: (module) => {
-              return /react|redux|prop-types/.test(module.context);
-            },
-            chunks: 'initial',
-            priority: 10,
-          },
-          common: {
-            name: 'common',
-            chunks: 'initial',
-            priority: 2,
-            minChunks: 2,
-          },
-        }
-      }),
-      // Generate a 'manifest' chunk to be inlined in the HTML template
+  // if(process.env.NODE_ENV === 'production'){
+  //   // https://jeremygayed.com/dynamic-vendor-bundling-in-webpack-528993e48aab
+  //   config.plugins.push(
+  //     // Extract all 3rd party modules into a separate 'vendor' chunk
+  //     new webpack.optimize.SplitChunNksPlugin({
+  //       cacheGroups: {
+  //         reactBase: {
+  //           name: 'reactBase',
+  //           test: (module) => {
+  //             return /react|redux|prop-types/.test(module.context);
+  //           },
+  //           chunks: 'initial',
+  //           priority: 10,
+  //         },
+  //         common: {
+  //           name: 'common',
+  //           chunks: 'initial',
+  //           priority: 2,
+  //           minChunks: 2,
+  //         },
+  //       }
+  //     }),
+  //     // Generate a 'manifest' chunk to be inlined in the HTML template
 
 
-      new webpack.HashedModuleIdsPlugin()
-    );
+  //     new webpack.HashedModuleIdsPlugin()
+  //   );
 
-  }
+  // }
 
   config.module.rules.push({
     test: /\.less$/,
