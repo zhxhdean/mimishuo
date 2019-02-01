@@ -79,16 +79,16 @@ module.exports = function override(config, env) {
     ]
   })
   // 装饰器
-  injectBabelPlugin(
-    [
-      '@babel/plugin-proposal-decorators',
-      {
-        // "decoratorsBeforeExport":true,
-        legacy: true
-      }
-    ],
-    config
-  )
-
+  // injectBabelPlugin(
+  //   [
+  //     '@babel/plugin-proposal-decorators',
+  //     {
+  //       // "decoratorsBeforeExport":true,
+  //       legacy: true
+  //     }
+  //   ],
+  //   config
+  // )
+  injectBabelPlugin('transform-decorators-legacy', config);
   return config
 }

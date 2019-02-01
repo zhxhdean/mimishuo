@@ -46,8 +46,8 @@ class LookComplaints extends Component {
   }
   async componentWillMount() {
     this.props.titleStore.setPageTitleText('看吐槽')
-    if(!util.isWechat()){
-      const wxCode = util.getQuery('code') || '001QT1xd1O3j0z0bGkwd18gXwd1QT1'
+    if(util.isWechat()){
+      const wxCode = util.getQuery('code')
       const packageId = util.getQuery('packageId') || 7
       if (!wxCode){
         const url = encodeURIComponent(window.location.href)

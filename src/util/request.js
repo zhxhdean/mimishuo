@@ -2,7 +2,7 @@ import axios from 'axios'
 import util from '../util/util'
 import { WX_OPENID, WX_TOKEN } from './urls'
 const config = {
-  baseURL: 'https://www.mimishuo.net/api/',
+  baseURL: '/api',
   // baseURL: 'http://m.haiyaozhu.com/openapi/',
 
   // withCredentials: true,
