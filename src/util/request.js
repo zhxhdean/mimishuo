@@ -22,7 +22,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   rsp => {
-    if (rsp.status === 200 && rsp.data && rsp.data.code === 1) {
+    if (rsp.status === 200 && rsp.data && (rsp.data.result === 'success' || rsp.data.errorCode === 0)) {
       // 接口1 标示成功
       return { code: 0, data: rsp.data.data }
     }
