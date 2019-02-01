@@ -39,34 +39,40 @@ class LookComplaints extends Component {
           "replyTime":"2019-01-02",
           "reply":"我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，"
         },
-      ]
+      ],
+      wxcode: '123',
+      packageId : 7
     }
   }
   async componentWillMount() {
-    if(util.isWechat()){
-      const wxCode = util.getQuery('code')
-      const packageId = util.getQuery('packageId')
-      console.log()
+    this.props.titleStore.setPageTitleText('看吐槽')
+    if(!util.isWechat()){
+      const wxCode = util.getQuery('code') || '001QT1xd1O3j0z0bGkwd18gXwd1QT1'
+      const packageId = util.getQuery('packageId') || 7
       if (!wxCode){
         const url = encodeURIComponent(window.location.href)
-        window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd6f12e5d04ed854b&redirect_uri='+url+'&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect'
-      }
+        const uurl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd6f12e5d04ed854b&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect`
+        window.location.replace(uurl)
+      }else {
+        this.state.wxcode = wxCode
+        alert(wxCode)
 
-      this.props.titleStore.setPageTitleText('看吐槽')
-      const rsp = await get({url: NEWLETTER_DETAIL, data: {packageId: packageId,code:wxCode}})
-      // const rsp = await post({url: CITY_LIST})
-      console.log(rsp)
-      return rsp
+      }
     } else {
       util.showToast('请在微信浏览器打开')
     }
 
   }
-  topProgram () {
-
+  async topProgram () {
+    try {
+      const rsp = await get({url: NEWLETTER_DETAIL, data: {packageId: this.state.packageId,code:this.state.wxcode}})
+      console.log(rsp)
+    } catch (err) {
+      alert(err)
+    }
   }
   render() {
-    const { list } = this.state
+    const { list, wxcode} = this.state
     // const { domestic, overseas } = this.props.cityStore
     return (
       <div className="complaints">
@@ -75,7 +81,7 @@ class LookComplaints extends Component {
           <div className="top">
             <div className="top-title">上海本来生活有限公司</div>
             <div className="top-content">
-              <div className="periods">2018年第11期</div>
+              <div className="periods">2018年第11期 {wxcode}</div>
               <div className="topProgram" onClick={this.topProgram.bind(this)}>进入小程序</div>
             </div>
 
