@@ -3,6 +3,7 @@ import './SetCompany.less'
 import { observer, inject } from 'mobx-react'
 import Head from '../../components/head'
 import util from '../../util/util'
+import {post} from '../../util/request'
 
 @inject('titleStore')
 @observer
@@ -10,18 +11,33 @@ class SetCompany extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      companyName: ''
+      companyName: '',
+      wxcode: ''
     }
   }
   componentWillMount() {
     this.props.titleStore.setPageTitleText('设置我的公司')
+
+    if(util.isWechat()){
+      // const wxCode = '001DJFWO1LdEF917OKUO1z2kWO1DJFWs'
+      const wxCode = util.getQuery('code')
+      if (!wxCode){
+        const url = encodeURIComponent(window.location.href)
+        const uurl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd6f12e5d04ed854b&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect`
+        window.location.replace(uurl)
+      }else {
+        this.state.wxcode = wxCode
+      }
+    } else {
+      util.showToast('请在微信浏览器打开')
+    }
   }
   companyInputChange = e => {
     const name = e.currentTarget.value
     console.log(name)
     this.setState({ companyName: name })
   }
-  setCompany = e => {
+  async setCompany (e) {
     const companyName = this.state.companyName
     if (!companyName) {
       util.showToast('请输入公司名称',1500)
@@ -29,7 +45,21 @@ class SetCompany extends Component {
       return
     }
     console.log(companyName)
-    this.props.history.push('/LookComplaints')
+    const rsp = await post({
+      url: '',
+      data: {
+        companyName: companyName,
+        code: this.state.wxcode
+      }
+    })
+    if (rsp.code === 0) {
+      util.showToast('绑定成功', 1500)
+      setTimeout(() => {
+        this.props.history.push('/LookComplaints')
+      },1500)
+    } else {
+      util.showToast(rsp.msg || '绑定失败', 1500)
+    }
   }
   render() {
     const { companyName } = this.state

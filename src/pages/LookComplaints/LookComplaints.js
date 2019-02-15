@@ -3,7 +3,7 @@ import './LookComplaints.less'
 import { observer, inject } from 'mobx-react'
 import Clipboard from 'clipboard'
 import Head from '../../components/head'
-import {get,post} from '../../util/request'
+import {get} from '../../util/request'
 import {NEWLETTER_DETAIL} from '../../util/urls'
 import util from '../../util/util'
 @inject('titleStore')
