@@ -26,8 +26,7 @@ instance.interceptors.response.use(
       // 接口1 标示成功
       return { code: 0, data: rsp.data.data }
     }
-    return { code: 1, msg: rsp.data.msg }
-  
+    return { code: rsp.data.errorCode, msg: rsp.data.errorMsg }
   },
   err => {
     return Promise.reject(err)

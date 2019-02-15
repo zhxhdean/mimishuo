@@ -23,6 +23,7 @@ class LookComplaints extends Component {
   async componentWillMount() {
     this.props.titleStore.setPageTitleText('看吐槽')
     if(util.isWechat()){
+      // const wxCode = '001DJFWO1LdEF917OKUO1z2kWO1DJFWs'
       const wxCode = util.getQuery('code')
       const packageId = util.getQuery('packageId') || 7
       if (!wxCode){
@@ -30,8 +31,8 @@ class LookComplaints extends Component {
         const uurl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd6f12e5d04ed854b&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect`
         window.location.replace(uurl)
       }else {
-        this.initLoadData(packageId,wxCode)
         this.state.wxcode = wxCode
+        this.initLoadData(packageId,wxCode)
       }
     } else {
       util.showToast('请在微信浏览器打开')
@@ -73,14 +74,14 @@ class LookComplaints extends Component {
       const rsp = await get({
         url: NEWLETTER_DETAIL,
         data: {
-          packageId: this.state.packageId,
-          code: this.state.wxcode
+          packageId: packageId || this.state.packageId,
+          code: wxCode || this.state.wxcode
         }
       })
       console.log(rsp)
-      if (rsp.code === 0) {
+      if (rsp.code === 0 && rsp.data) {
         let rstList
-        if (rsp.data && rsp.data.secretReplyList) {
+        if (rsp.data.secretReplyList) {
           rstList = rsp.data.secretReplyList.map(item => {
             return Object.assign(item, {
               createTime: util.formatDate(item.createTime, 'Y-M-D h:m'),
@@ -88,14 +89,21 @@ class LookComplaints extends Component {
             })
           })
         } else {
-          rstList = rsp.data.secretReplyList
+          rstList = []
         }
         rsp.data.secretReplyList = rstList
         this.setState({
           data: rsp.data,
         })
       } else {
-        util.showToast(rsp.msg || '获取失败，请重试', 1500)
+        if (rsp.code === 10007) { // 没有绑定公司
+          util.showToast(rsp.msg || '您还未绑定公司，请先绑定', 1500)
+          setTimeout(() => {
+            this.props.history.push('/SetCompany')
+          },1500)
+        } else {
+          util.showToast(rsp.msg || '获取失败，请重试', 1500)
+        }
         this.setState({
           hasMore: false,
           isLoading: false
@@ -163,7 +171,7 @@ class LookComplaints extends Component {
             <div className="top-content">
               <div className="periods">{data.year}年第{data.phaseNum}期 </div>
               <div className="topProgram" onClick={this.topProgram.bind(this)}>进入小程序</div>
-              {wxcode}
+              {/*{wxcode}*/}
             </div>
           </div>
           {data.secretReplyList && data.secretReplyList.map((item, index) => {
