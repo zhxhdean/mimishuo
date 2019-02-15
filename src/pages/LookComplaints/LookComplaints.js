@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import './LookComplaints.less'
 import { observer, inject } from 'mobx-react'
+import Clipboard from 'clipboard'
 import Head from '../../components/head'
 import {get,post} from '../../util/request'
-import {NEWLETTER_DETAIL, CITY_LIST} from '../../util/urls'
+import {NEWLETTER_DETAIL} from '../../util/urls'
 import util from '../../util/util'
 @inject('titleStore')
 @observer
@@ -11,42 +12,18 @@ class LookComplaints extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      list: [
-        {
-          "subject":"",
-          "content":"饭不怎么好吃呀",
-          "createTime":"2019-01-02",
-          "imageUrls":["https://mimishuo.oss-cn-beijing.aliyuncs.com/206bb6537b1343f2a514159f6d6c636b.jpg","https://mimishuo.oss-cn-beijing.aliyuncs.com/206bb6537b1343f2a514159f6d6c636b.jpg","https://mimishuo.oss-cn-beijing.aliyuncs.com/206bb6537b1343f2a514159f6d6c636b.jpg"],
-          "headImageUrl":"https://mimishuo.oss-cn-beijing.aliyuncs.com/ee9075b0444fee6a61c6175bccc7853e.jpeg",
-          "replyTime":"2019-01-02",
-          "reply":"我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，"
-        },
-        {
-          "subject":"",
-          "content":"饭不怎么好吃呀",
-          "createTime":"2019-01-02",
-          "imageUrls":["https://mimishuo.oss-cn-beijing.aliyuncs.com/206bb6537b1343f2a514159f6d6c636b.jpg","https://mimishuo.oss-cn-beijing.aliyuncs.com/206bb6537b1343f2a514159f6d6c636b.jpg"],
-          "headImageUrl":"https://mimishuo.oss-cn-beijing.aliyuncs.com/ee9075b0444fee6a61c6175bccc7853e.jpeg",
-          "replyTime":"2019-01-02",
-          "reply":"我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，"
-        },
-        {
-          "subject":"",
-          "content":"饭不怎么好吃呀",
-          "createTime":"2019-01-02",
-          "imageUrls":["https://mimishuo.oss-cn-beijing.aliyuncs.com/206bb6537b1343f2a514159f6d6c636b.jpg","https://mimishuo.oss-cn-beijing.aliyuncs.com/206bb6537b1343f2a514159f6d6c636b.jpg"],
-          "headImageUrl":"https://mimishuo.oss-cn-beijing.aliyuncs.com/ee9075b0444fee6a61c6175bccc7853e.jpeg",
-          "replyTime":"2019-01-02",
-          "reply":"我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，我们会加快处理的，"
-        },
-      ],
-      wxcode: '123',
-      packageId : 7
+      data: {},
+      wxcode: '0812N01u0nndKh1QiS0u0HfX0u02N01Y',
+      packageId : 7,
+      hasMore: true,  // 是否还有更多
+      isLoading: false, // 是否在加载中
+      page: 1 // 记录当前页
     }
   }
   async componentWillMount() {
     this.props.titleStore.setPageTitleText('看吐槽')
     if(util.isWechat()){
+      // const wxCode = '001DJFWO1LdEF917OKUO1z2kWO1DJFWs'
       const wxCode = util.getQuery('code')
       const packageId = util.getQuery('packageId') || 7
       if (!wxCode){
@@ -55,38 +32,149 @@ class LookComplaints extends Component {
         window.location.replace(uurl)
       }else {
         this.state.wxcode = wxCode
-        alert(wxCode)
-
+        this.initLoadData(packageId,wxCode)
       }
     } else {
       util.showToast('请在微信浏览器打开')
     }
 
   }
-  async topProgram () {
+
+  componentDidMount() {
+    // this.scrollPage()
+  }
+  // 绑定页面滚动
+  scrollPage () {
+    let timeoutId
+    const self = this
+    const wrapper = this.refs.wrapper
+    function callback() {
+      console.log(456)
+      const top = wrapper.getBoundingClientRect().top
+      const windowHeight = window.screen.height
+      if (top && top < windowHeight) {
+        // 证明 wrapper 已经被滚动到暴露在页面可视范围之内了
+        self.loadMore()
+      }
+    }
+    window.addEventListener('scroll',function () {
+      if (!this.state.hasMore) {
+        return false
+      }
+
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+      timeoutId = setTimeout(callback,50)
+    }.bind(this),false)
+  }
+
+  async initLoadData (packageId, wxCode) {
     try {
-      const rsp = await get({url: NEWLETTER_DETAIL, data: {packageId: this.state.packageId,code:this.state.wxcode}})
+      const rsp = await get({
+        url: NEWLETTER_DETAIL,
+        data: {
+          packageId: packageId || this.state.packageId,
+          code: wxCode || this.state.wxcode
+        }
+      })
       console.log(rsp)
+      if (rsp.code === 0 && rsp.data) {
+        let rstList
+        if (rsp.data.secretReplyList) {
+          rstList = rsp.data.secretReplyList.map(item => {
+            return Object.assign(item, {
+              createTime: util.formatDate(item.createTime, 'Y-M-D h:m'),
+              replyTime: util.formatDate(item.replyTime, 'Y-M-D h:m')
+            })
+          })
+        } else {
+          rstList = []
+        }
+        rsp.data.secretReplyList = rstList
+        this.setState({
+          data: rsp.data,
+        })
+      } else {
+        if (rsp.code === 10007) { // 没有绑定公司
+          util.showToast(rsp.msg || '您还未绑定公司，请先绑定', 1500)
+          setTimeout(() => {
+            this.props.history.push('/SetCompany')
+          },1500)
+        } else {
+          util.showToast(rsp.msg || '获取失败，请重试', 1500)
+        }
+        this.setState({
+          hasMore: false,
+          isLoading: false
+        })
+      }
     } catch (err) {
-      alert(err)
+      util.showToast(err, 1500)
     }
   }
+  async topProgram () {
+
+  }
+  // 加载数据
+  async loadMore() {
+    if(!this.state.hasMore || this.state.isLoading) {
+      return
+    }
+    this.setState({
+      isLoading: true
+    })
+    try {
+      const rsp = await get({
+        url: NEWLETTER_DETAIL,
+        data: this.params()
+      })
+      console.log(rsp)
+      if (rsp.data&&rsp.data.secretReplyList.length>0) {
+        this.setState({
+          list: [...this.state.list, ...rsp.data.secretReplyList],
+          page: this.state.page + 1,
+          isLoading: false
+        })
+      } else {
+        this.setState({
+          hasMore: false,
+          isLoading: false
+        })
+      }
+    } catch (err) {
+      alert(err)
+      this.setState({
+        isLoading: false
+      })
+    }
+  }
+  /**
+   * 封装接口需要的参数
+   */
+  params () {
+    const { packageId = '1', code = ''} = this.state
+    let result = {
+      packageId,
+      code
+    }
+    return result
+  }
   render() {
-    const { list, wxcode} = this.state
-    // const { domestic, overseas } = this.props.cityStore
+    const { data, wxcode, hasMore} = this.state
     return (
       <div className="complaints">
         <Head />
         <div className="content">
           <div className="top">
-            <div className="top-title">上海本来生活有限公司</div>
+            <div className="top-title">{data.companyName}</div>
             <div className="top-content">
-              <div className="periods">2018年第11期 {wxcode}</div>
+              <div className="periods">{data.year}年第{data.phaseNum}期 </div>
               <div className="topProgram" onClick={this.topProgram.bind(this)}>进入小程序</div>
+              {/*{wxcode}*/}
             </div>
-
           </div>
-          {list.map((item, index) => {
+          {data.secretReplyList && data.secretReplyList.map((item, index) => {
             return (
 
               <div key={index} className="item">
@@ -121,6 +209,12 @@ class LookComplaints extends Component {
               </div>
             )
           })}
+
+          {/*<div className="load-more" ref="wrapper">*/}
+          {/*{hasMore*/}
+            {/*? '加载更多'*/}
+            {/*: '没有更多了'}*/}
+          {/*</div>*/}
         </div>
       </div>
     )

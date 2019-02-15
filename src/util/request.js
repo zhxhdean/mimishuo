@@ -22,12 +22,11 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   rsp => {
-    if (rsp.status === 200 && rsp.data && rsp.data.code === 1) {
+    if (rsp.status === 200 && rsp.data && (rsp.data.result === 'success' || rsp.data.errorCode === 0)) {
       // 接口1 标示成功
       return { code: 0, data: rsp.data.data }
     }
-    return { code: 1, msg: rsp.data.msg }
-  
+    return { code: rsp.data.errorCode, msg: rsp.data.errorMsg }
   },
   err => {
     return Promise.reject(err)
