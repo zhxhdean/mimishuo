@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import './LookComplaints.less'
 import { observer, inject } from 'mobx-react'
-import Clipboard from 'clipboard'
 import Head from '../../components/head'
-import {get,post} from '../../util/request'
+import {get} from '../../util/request'
 import {NEWLETTER_DETAIL} from '../../util/urls'
 import util from '../../util/util'
 @inject('titleStore')
@@ -22,9 +21,9 @@ class LookComplaints extends Component {
   }
   async componentWillMount() {
     this.props.titleStore.setPageTitleText('看吐槽')
-    if(util.isWechat()){
-      // const wxCode = '001DJFWO1LdEF917OKUO1z2kWO1DJFWs'
-      const wxCode = util.getQuery('code')
+    if(!util.isWechat()){
+      const wxCode = '001DJFWO1LdEF917OKUO1z2kWO1DJF1s'
+      // const wxCode = util.getQuery('code')
       const packageId = util.getQuery('packageId') || 7
       if (!wxCode){
         const url = encodeURIComponent(window.location.href)
