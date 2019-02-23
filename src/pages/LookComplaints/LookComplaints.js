@@ -163,13 +163,13 @@ class LookComplaints extends Component {
     const { data, wxcode, hasMore} = this.state
     return (
       <div className="complaints">
-        <Head />
+        {/*<Head />*/}
         <div className="content">
           <div className="top">
             <div className="top-title">{data.companyName}</div>
             <div className="top-content">
               <div className="periods">{data.year}年第{data.phaseNum}期 </div>
-              <div className="topProgram" onClick={this.topProgram.bind(this)}>进入小程序</div>
+              {/*<div className="topProgram" onClick={this.topProgram.bind(this)}>进入小程序</div>*/}
               {/*{wxcode}*/}
             </div>
           </div>
@@ -178,31 +178,34 @@ class LookComplaints extends Component {
 
               <div key={index} className="item">
                 <div className="user">
-                  <div className="user-top">
+                  <div className="user-img">
                     <img className="avator" src={item.headImageUrl}/>
-                    <span className="user-text">{item.createTime}</span>
+                  </div>
+                  <div className="user-top">
+                    {item.createTime}
                   </div>
                 </div>
 
-                <div className="content">
+                <div className="user-content">
                   {item.content}
-                  <div className="content-icon"></div>
+                  {/*<div className="content-icon"></div>*/}
                 </div>
 
                 <div className="images">
                   {item.imageUrls && item.imageUrls.map((item, index) => {
-                  return (
-                  <div className="image" key={index}>
-                  <img src={item} className="img"/>
-                  </div>
-                  )
+                    return (
+                      <div className={(index+1)%3==0?'image image-r':'image'} key={index}>
+                        <img src={item} className="img"/>
+                      </div>
+                    )
                   })}
                 </div>
 
                 <div className="reply">
-                  <div className="reply-hr"><strong>HR</strong>
-                    <span className="">{item.replyTime}</span></div>
-                  <div className="reply-content">{item.reply}<div className="content-icon-hr"></div>
+                  <div className="reply-hr"><span className="reply-name">HR回复</span>
+                    <span className="reply-time">{item.replyTime}</span></div>
+                  <div className="reply-content">{item.reply}
+                  {/*<div className="content-icon-hr"></div>*/}
                   </div>
                 </div>
               </div>
