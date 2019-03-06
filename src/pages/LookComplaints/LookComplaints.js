@@ -22,7 +22,7 @@ class LookComplaints extends Component {
   async componentWillMount() {
     this.props.titleStore.setPageTitleText('看吐槽')
     if(util.isWechat()){
-      const wxCode = '001DJFWO1LdEF917OKUO1z2kWO1DJF1s'
+      // const wxCode = '001DJFWO1LdEF917OKUO1z2kWO1DJF1s'
       const wxCode = util.getQuery('code')
       const packageId = util.getQuery('packageId') || 7
       if (!wxCode){
