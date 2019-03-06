@@ -22,7 +22,7 @@ class LookComplaints extends Component {
   async componentWillMount() {
     this.props.titleStore.setPageTitleText('看吐槽')
     if(util.isWechat()){
-      // const wxCode = '001DJFWO1LdEF917OKUO1z2kWO1DJF1s'
+      const wxCode = '001DJFWO1LdEF917OKUO1z2kWO1DJF1s'
       const wxCode = util.getQuery('code')
       const packageId = util.getQuery('packageId') || 7
       if (!wxCode){
@@ -83,8 +83,8 @@ class LookComplaints extends Component {
         if (rsp.data.secretReplyList) {
           rstList = rsp.data.secretReplyList.map(item => {
             return Object.assign(item, {
-              createTime: util.formatDate(item.createTime, 'Y-M-D h:m'),
-              replyTime: util.formatDate(item.replyTime, 'Y-M-D h:m')
+              createTime: item.createTime ? util.formatDate(item.createTime, 'Y-M-D h:m') : '',
+              replyTime: item.replyTime ? util.formatDate(item.replyTime, 'Y-M-D h:m') : ''
             })
           })
         } else {
@@ -200,14 +200,16 @@ class LookComplaints extends Component {
                     )
                   })}
                 </div>
-
-                <div className="reply">
-                  <div className="reply-hr"><span className="reply-name">HR回复</span>
+                {item.reply? (
+                  <div className="reply">
+                    <div className="reply-hr"><span className="reply-name">HR回复</span>
                     <span className="reply-time">{item.replyTime}</span></div>
-                  <div className="reply-content">{item.reply}
-                  {/*<div className="content-icon-hr"></div>*/}
+                    <div className="reply-content">{item.reply}
+                    {/*<div className="content-icon-hr"></div>*/}
+                    </div>
                   </div>
-                </div>
+                  ) : ''}
+
               </div>
             )
           })}
